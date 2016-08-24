@@ -126,30 +126,33 @@ Code.isRtl = function() {
  * @param {string} defaultXml Text representation of default blocks.
  */
 Code.loadBlocks = function(defaultXml) {
-  try {
-    var loadOnce = window.sessionStorage.loadOnceBlocks;
-  } catch(e) {
-    // Firefox sometimes throws a SecurityError when accessing sessionStorage.
-    // Restarting Firefox fixes this, so it looks like a bug.
-    var loadOnce = null;
-  }
-  if ('BlocklyStorage' in window && window.location.hash.length > 1) {
-    // An href with #key trigers an AJAX call to retrieve saved blocks.
-    BlocklyStorage.retrieveXml(window.location.hash.substring(1));
-  } else if (loadOnce) {
-    // Language switching stores the blocks during the reload.
-    delete window.sessionStorage.loadOnceBlocks;
-    var xml = Blockly.Xml.textToDom(loadOnce);
-    Blockly.Xml.domToWorkspace(xml, Code.workspace);
-  } else if (defaultXml) {
-    // Load the editor with default starting blocks.
-    var xml = Blockly.Xml.textToDom(defaultXml);
-    Blockly.Xml.domToWorkspace(xml, Code.workspace);
-  } else if ('BlocklyStorage' in window) {
-    // Restore saved blocks in a separate thread so that subsequent
-    // initialization is not affected from a failed load.
-    window.setTimeout(BlocklyStorage.restoreBlocks, 0);
-  }
+  $(function() {
+      $.ajax({
+          type: "get",
+          url: "./examples/default.xml",
+          dataType: "text",
+          success: function(xmlText) {
+            var xmlDom = null;
+            try {
+              xmlDom = Blockly.Xml.textToDom(xmlText);
+            } catch (e) {
+              var q =
+                  window.confirm(MSG['badXml'].replace('%1', e));
+              if (!q) {
+                // Leave the user on the XML tab.
+                return;
+              }
+            }
+            if (xmlDom) {
+              Code.workspace.clear();
+              Blockly.Xml.domToWorkspace(xmlDom, Code.workspace);
+            }
+          },
+          error: function(xhr, status) {
+
+          }
+      });
+  });
 };
 
 /**
@@ -245,7 +248,7 @@ Code.LANG = Code.getLang();
  * List of tab names.
  * @private
  */
-Code.TABS_ = ['blocks', 'javascript', 'php', 'python', 'dart', 'lua', 'littleman', 'xml'];
+Code.TABS_ = ['blocks', 'javascript', 'littleman', 'xml'];
 
 Code.selected = 'blocks';
 
@@ -539,156 +542,11 @@ Code.discard = function() {
 };
 
 
-Blockly.Blocks['alg_input'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("Input");
-    this.appendValueInput("Description")
-        .setCheck(null)
-        .appendField("Name");
-    this.appendStatementInput("Input")
-        .setCheck(null);
-    this.setNextStatement(true, null);
-    this.setColour(65);
-    this.setTooltip('');
-    this.setHelpUrl('http://www.example.com/');
-  }
-};
 
-Blockly.JavaScript['alg_input'] = function(block) {
-  var value_description = Blockly.JavaScript.valueToCode(block, 'Description', Blockly.JavaScript.ORDER_ATOMIC);
-  var statements_input = Blockly.JavaScript.statementToCode(block, 'Input');
-  // TODO: Assemble JavaScript into code variable.
-  var code = '...;\n';
-  return code;
-};
-
-Blockly.Blocks['alg_output'] = {
-  init: function() {
-    this.appendValueInput("Description")
-        .setCheck(null)
-        .appendField("Output");
-    this.setPreviousStatement(true, null);
-    this.setColour(65);
-    this.setTooltip('');
-    this.setHelpUrl('http://www.example.com/');
-  }
-};
-
-Blockly.JavaScript['alg_output'] = function(block) {
-  var value_description = Blockly.JavaScript.valueToCode(block, 'Description', Blockly.JavaScript.ORDER_ATOMIC);
-  // TODO: Assemble JavaScript into code variable.
-  var code = '...;\n';
-  return code;
-};
-
-Blockly.Blocks['math_plusminus'] = {
-  /**
-   * Block for basic arithmetic operator.
-   * @this Blockly.Block
-   */
-  init: function() {
-    this.jsonInit({
-      "message0": "%1 %2 %3",
-      "args0": [
-        {
-          "type": "input_value",
-          "name": "A",
-          "check": "Number"
-        },
-        {
-          "type": "field_dropdown",
-          "name": "OP",
-          "options":
-            [[Blockly.Msg.MATH_ADDITION_SYMBOL, 'ADD'],
-             [Blockly.Msg.MATH_SUBTRACTION_SYMBOL, 'MINUS']]
-        },
-        {
-          "type": "input_value",
-          "name": "B",
-          "check": "Number"
-        }
-      ],
-      "inputsInline": true,
-      "output": "Number",
-      "colour": Blockly.Blocks.math.HUE,
-      "helpUrl": Blockly.Msg.MATH_ARITHMETIC_HELPURL
-    });
-    // Assign 'this' to a variable for use in the tooltip closure below.
-    var thisBlock = this;
-    this.setTooltip(function() {
-      var mode = thisBlock.getFieldValue('OP');
-      var TOOLTIPS = {
-        'ADD': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_ADD,
-        'MINUS': Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_MINUS,
-      };
-      return TOOLTIPS[mode];
-    });
-  }
-};
-
-Blockly.JavaScript['math_plusminus'] = function(block) {
-  // Basic arithmetic operators, and power.
-  var OPERATORS = {
-    'ADD': [' + ', Blockly.JavaScript.ORDER_ADDITION],
-    'MINUS': [' - ', Blockly.JavaScript.ORDER_SUBTRACTION],
-    'MULTIPLY': [' * ', Blockly.JavaScript.ORDER_MULTIPLICATION],
-    'DIVIDE': [' / ', Blockly.JavaScript.ORDER_DIVISION],
-    'POWER': [null, Blockly.JavaScript.ORDER_COMMA]  // Handle power separately.
-  };
-  var tuple = OPERATORS[block.getFieldValue('OP')];
-  var operator = tuple[0];
-  var order = tuple[1];
-  var argument0 = Blockly.JavaScript.valueToCode(block, 'A', order) || '0';
-  var argument1 = Blockly.JavaScript.valueToCode(block, 'B', order) || '0';
-  var code;
-  // Power in JavaScript requires a special case since it has no operator.
-  if (!operator) {
-    code = 'Math.pow(' + argument0 + ', ' + argument1 + ')';
-    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
-  }
-  code = argument0 + operator + argument1;
-  return [code, order];
-};
-
-Blockly.LittleMan['math_plusminus'] = function(block) {
-  // Basic arithmetic operators, and power.
-  var OPERATORS = {
-    'ADD': ['ADD', Blockly.LittleMan.ORDER_ADDITION],
-    'MINUS': ['SUB', Blockly.LittleMan.ORDER_SUBTRACTION]
-  };g
-  var tuple = OPERATORS[block.getFieldValue('OP')];
-  var operator = tuple[0];
-  var order = tuple[1];
-  
-  var code = '';
-    
-  var B = block.getInputTargetBlock('B');
-  var address1 = Blockly.LittleMan.getAddress(B);
-  if (address1 == null) {
-    address1 = Blockly.LittleMan.makeTemp('0');
-    code += '\n' + Blockly.LittleMan.instruction1('// calculate math argument 2 ');
-    code += Blockly.LittleMan.valueToCode(block, 'B', order) || '0';
-    code += '\n' + Blockly.LittleMan.instruction2('STA', address1);
-  }
-  
-  var A = block.getInputTargetBlock('A');
-  var address0 = Blockly.LittleMan.getAddress(A);
-  if (address0 == null) {
-    code += '\n' + Blockly.LittleMan.instruction1('// calculate math argument 1 ');
-    code += Blockly.LittleMan.valueToCode(block, 'A', order) || '0';
-  } else {
-    code += '\n' + Blockly.LittleMan.instruction2('LDA', address0);
-  }
-  
-  code += '\n' + Blockly.LittleMan.instruction1('// mathematical operation ' + operator) +
-          '\n' + Blockly.LittleMan.instruction2(operator, address1);
-  return [code, order];
-};
 
 // Load the Code demo's language strings.
-document.write('<script src="msg/' + Code.LANG + '.js"></script>\n');
+document.write('<script src="./blockly/demos/code/msg/' + Code.LANG + '.js"></script>\n');
 // Load Blockly's language strings.
-document.write('<script src="msg/js/' + Code.LANG + '.js"></script>\n');
+document.write('<script src="./blockly/msg/js/' + Code.LANG + '.js"></script>\n');
 
 window.addEventListener('load', Code.init);
