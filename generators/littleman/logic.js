@@ -40,19 +40,19 @@ Blockly.LittleMan['controls_if'] = function(block) {
     if (n>0) {
       code += '\n' + Blockly.LittleMan.instruction3(endlabels[n-1], 'LDA', 'one');
     }
-    code += '\n' + Blockly.LittleMan.instruction1('// if condition ' + n);
+    //code += '\n' + Blockly.LittleMan.instruction1('// if condition ' + n);
     code += Blockly.LittleMan.valueToCode(block, 'IF' + n, Blockly.LittleMan.ORDER_NONE) || 'false';
     code += '\n' + Blockly.LittleMan.instruction2('BRP', endlabels[n]);
-    code += '\n' + Blockly.LittleMan.instruction1('// branch if ' + n);
+    //code += '\n' + Blockly.LittleMan.instruction1('// branch if ' + n);
     code += Blockly.LittleMan.statementToCode(block, 'DO' + n);
   }
   // else
   if (block.elseCount_) {
-    code += '\n' + Blockly.LittleMan.instruction1('// else');
+    //code += '\n' + Blockly.LittleMan.instruction1('// else');
     code += '\n' + Blockly.LittleMan.instruction3(endlabels[n-1], 'LDA', 'one');
     code += Blockly.LittleMan.statementToCode(block, 'ELSE');
   } else {
-    code += '\n' + Blockly.LittleMan.instruction1('// null operation ' + n);
+    //code += '\n' + Blockly.LittleMan.instruction1('// null operation ' + n);
     code += '\n' + Blockly.LittleMan.instruction3(endlabels[n-1], 'LDA', 'one');
   }
   return code;
@@ -78,22 +78,22 @@ Blockly.LittleMan['logic_compare'] = function(block) {
   var address0 = Blockly.LittleMan.getAddress(A);
   if (address0 == null) {
     address0 = Blockly.LittleMan.makeTemp('0');
-    code += '\n' + Blockly.LittleMan.instruction1("// calculate comparator 1 and store in " + address0);
+    //code += '\n' + Blockly.LittleMan.instruction1("// calculate comparator 1 and store in " + address0);
     code += Blockly.LittleMan.valueToCode(block, 'A', order);
     code += '\n' + Blockly.LittleMan.instruction2('STA', address0);
   } else {
-    code += '\n' + Blockly.LittleMan.instruction1("// comparator 1 already calculated in " + address0);
+    //code += '\n' + Blockly.LittleMan.instruction1("// comparator 1 already calculated in " + address0);
   }
   
   var B = block.getInputTargetBlock('B');
   var address1 = Blockly.LittleMan.getAddress(B);
   if (address1 == null) {    
     address1 = Blockly.LittleMan.makeTemp('0');
-    code += '\n' + Blockly.LittleMan.instruction1("// calculate comparator 2 and store in " + address1);
+    //code += '\n' + Blockly.LittleMan.instruction1("// calculate comparator 2 and store in " + address1);
     code += Blockly.LittleMan.valueToCode(block, 'B', order);
     code += '\n' + Blockly.LittleMan.instruction2('STA', address1);
   } else {
-    code += '\n' + Blockly.LittleMan.instruction1("// comparator 2 already calculated in " + address1);
+    //code += '\n' + Blockly.LittleMan.instruction1("// comparator 2 already calculated in " + address1);
   }
   
   if (operator == "==") {
@@ -138,36 +138,4 @@ Blockly.LittleMan['logic_operation'] = function(block) {
   }
   var code = argument0 + ' ' + operator + ' ' + argument1;
   return [code, order];
-};
-
-Blockly.LittleMan['logic_negate'] = function(block) {
-  // Negation.
-  var order = Blockly.LittleMan.ORDER_LOGICAL_NOT;
-  var argument0 = Blockly.LittleMan.valueToCode(block, 'BOOL', order) ||
-      'true';
-  var code = '!' + argument0;
-  return [code, order];
-};
-
-Blockly.LittleMan['logic_boolean'] = function(block) {
-  // Boolean values true and false.
-  var code = (block.getFieldValue('BOOL') == 'TRUE') ? 'true' : 'false';
-  return [code, Blockly.LittleMan.ORDER_ATOMIC];
-};
-
-Blockly.LittleMan['logic_null'] = function(block) {
-  // Null data type.
-  return ['null', Blockly.LittleMan.ORDER_ATOMIC];
-};
-
-Blockly.LittleMan['logic_ternary'] = function(block) {
-  // Ternary operator.
-  var value_if = Blockly.LittleMan.valueToCode(block, 'IF',
-      Blockly.LittleMan.ORDER_CONDITIONAL) || 'false';
-  var value_then = Blockly.LittleMan.valueToCode(block, 'THEN',
-      Blockly.LittleMan.ORDER_CONDITIONAL) || 'null';
-  var value_else = Blockly.LittleMan.valueToCode(block, 'ELSE',
-      Blockly.LittleMan.ORDER_CONDITIONAL) || 'null';
-  var code = value_if + ' ? ' + value_then + ' : ' + value_else;
-  return [code, Blockly.LittleMan.ORDER_CONDITIONAL];
 };

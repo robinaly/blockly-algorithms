@@ -56,7 +56,7 @@ Blockly.LittleMan['math_arithmetic'] = function(block) {
   var address1 = Blockly.LittleMan.getAddress(B);
   if (address1 == null) {
     address1 = Blockly.LittleMan.makeTemp('0');
-    code += '\n' + Blockly.LittleMan.instruction1('// calculate math argument 2 ');
+    //code += '\n' + Blockly.LittleMan.instruction1('// calculate math argument 2 ');
     code += Blockly.LittleMan.valueToCode(block, 'B', order) || '0';
     code += '\n' + Blockly.LittleMan.instruction2('STA', address1);
   }
@@ -64,14 +64,14 @@ Blockly.LittleMan['math_arithmetic'] = function(block) {
   var A = block.getInputTargetBlock('A');
   var address0 = Blockly.LittleMan.getAddress(A);
   if (address0 == null) {
-    code += '\n' + Blockly.LittleMan.instruction1('// calculate math argument 1 ');
+    //code += '\n' + Blockly.LittleMan.instruction1('// calculate math argument 1 ');
     code += Blockly.LittleMan.valueToCode(block, 'A', order) || '0';
   } else {
     code += '\n' + Blockly.LittleMan.instruction2('LDA', address0);
   }
   
-  code += '\n' + Blockly.LittleMan.instruction1('// mathematical operation ' + operator) +
-          '\n' + Blockly.LittleMan.instruction2(operator, address1);
+  //code += '\n' + Blockly.LittleMan.instruction1('// mathematical operation ' + operator);
+  code += '\n' + Blockly.LittleMan.instruction2(operator, address1);
   return [code, order];
 };
 
