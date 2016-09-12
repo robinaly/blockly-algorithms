@@ -144,3 +144,23 @@ Blockly.Blocks['array_length'] = {
 Blockly.JavaScript['array_length'] = function(block) {
   return ['length()', Blockly.JavaScript.ORDER_ATOMIC];
 };
+
+Blockly.Blocks['array_element'] = {
+  /**
+   * Block for list length.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": "Element",
+      "args0": [
+      ],
+      "output": 'Number',
+      "colour": Blockly.Blocks.lists.HUE
+    });
+  }
+};
+
+Blockly.JavaScript['array_element'] = function(block) {
+  return ['element()', Blockly.JavaScript.ORDER_ATOMIC];
+};

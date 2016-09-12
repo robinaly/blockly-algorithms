@@ -23,8 +23,6 @@
 Blockly.JavaScript.STATEMENT_PREFIX = 'step(%1);\n';
 Blockly.JavaScript.addReservedWords('dumpVariables,step,highlightBlock');
 
-
-
 /**
  * Create a namespace for the application.
  */
@@ -45,7 +43,7 @@ self.clear = function() {
 
 self.runDelete = function() {
   if (self.algorithm() != '') {
-    localStorage.removeItem(self.algorithm());
+    localStorage.removeItem(self.title() + ':' + self.algorithm());
     alert("Deleted");
   }
   self.loadAlgorithms();
@@ -55,20 +53,26 @@ self.save = function() {
   var xml = Blockly.Xml.workspaceToDom(self.workspace);
   var text = Blockly.Xml.domToText(xml);
   var name = window.prompt("Please insert algorithm name");
+  var prefix = self.title() + ':';
+  var l = prefix.length;
+  var nameVis = name;
+  name = prefix + name;
+  
   if (localStorage.getItem(name) != null) {
     var sure = window.prompt("Are you sure you want to overwrite?", "no");
     if (sure != "yes")
       return;
   } else {
-    self.algorithms.push(name);
+    self.algorithms.push(nameVis);
   }
-  self.algorithm(name);
-  localStorage.setItem(name,text);
+  self.algorithm(nameVis);
+  localStorage.setItem(name, text);
   window.alert("Saved");
 }
 
 self.load = function(name) {
-  var text = localStorage.getItem(name);
+  var n = self.title() + ':' + name;
+  var text = localStorage.getItem(n);
   var xmlDom = Blockly.Xml.textToDom(text);
   self.workspace.clear();
   Blockly.Xml.domToWorkspace(xmlDom, self.workspace);
@@ -193,6 +197,14 @@ self.initApi = function(interpreter, scope) {
   interpreter.setProperty(scope, 'length',
       interpreter.createNativeFunction(wrapper));
       
+  // Length
+  wrapper = function() {
+    return interpreter.createPrimitive(self.array_element());
+  };
+  interpreter.setProperty(scope, 'element',
+      interpreter.createNativeFunction(wrapper));
+
+      
   // Get
   wrapper = function(i) {
     return interpreter.createPrimitive(self.array_get(i));
@@ -230,41 +242,20 @@ self.compile = function() {
   self.logs.push("Compile");
   var code = Blockly.JavaScript.workspaceToCode(self.workspace);
   code += '\n\n';
-  //code += "var data = {};\n"
   code += "function step(id) {\n";
-  //code += "  if (data == undefined) data = {}\n";
   code += "  var data = {};\n";
   code += "  highlightBlock(id);\n";
-  //code += "  var found = false;\n";
   for (var i in self.workspace.variableList) {
     var v = self.workspace.variableList[i];
-    //code += "  if (" + v + "!= undefined && (data." + v + " == undefined || " + v + " !=  data." + v + ")) {\n";
-    //code += "    found = true;\n";
     code += "    data." + v + " = " + v + ';\n';
-    //code += "  }\n";
   }
-  //code += '  if (found) {\n';
   code += '    update(JSON.stringify(data));\n';
-  //code += '  }\n';
   code += '}\n';
   self.code(code);
   self.interpreter = new Interpreter(code, self.initApi);
 }
 
-self.checkSucceeded = function() {
-  var valid = true;
-  for (var i=1; i<self.array().length; i++) {
-    if (self.array()[i-1] > self.array()[i]) {
-      valid = false;
-      break;
-    }
-  };
-  if (valid) {
-    self.succeeded(true);
-  } else {
-    self.succeeded(false);
-  }
-}
+
 
 self.Variable = function(name, val) {
   var self = this;
@@ -272,54 +263,21 @@ self.Variable = function(name, val) {
   self.val = ko.observable(val);
 }
 
-self.newProblem = function() {
-  self.seed(Math.ceil(Math.random() * 1000));
-  self.reset();
-}
-
-self.sortedProblem = function() {
-  self.seed(-1);
-  self.reset();
-}
-
-self.invSortedProblem = function() {
-  self.seed(-2);
-  self.reset();
-}
-
-self.reset = function() {
-  var seed = self.seed();
-  self.interpreter = null;
-  self.succeeded(false);
-  self.steps(0);
-  self.array.removeAll();
-  
-  if (seed == -1) {
-    for (var i=0; i<self.n(); i++) {
-      self.array.push(i);
-    } 
-  } else if (seed == -2) {
-    for (var i=self.n(); i>=0; i--) {
-      self.array.push(i);
-    }
-  } else {
-    var rng = new MersenneTwister(seed);
-    for (var i=0; i<self.n(); i++) {
-      self.array.push(Math.round(Math.ceil(rng.random() * 90) + 10))
-    }  
-  }
-}
-
-
-self.changeAlgorithm = function() {
+self.onChangeAlgorithm = function() {
   self.load(self.algorithm());
 }
 
 self.loadAlgorithms = function() {
   /* saved games */
   var algorithms = ['']
+  var prefix = self.title() + ':';
+  var l = prefix.length;
   for (var i = 0; i < localStorage.length; i++){
-      algorithms.push(localStorage.key(i));
+    var n = localStorage.key(i);
+    if (n.startsWith(prefix)) {
+      n = n.substring(l);
+      algorithms.push(n);
+    }
   }
   self.algorithms(algorithms);
 }
@@ -352,6 +310,27 @@ self.onUpload = function() {
     alert("error");
 	}
 }
+
+self.title = ko.observable();
+self.array = ko.observableArray();
+self.succeeded = ko.observable(false);
+self.n = ko.observable(20);
+self.seed = ko.observable(124);
+self.logs = ko.observableArray();
+self.code = ko.observable();
+self.variables = ko.observableArray();
+self.running = ko.observable(false);
+self.steps = ko.observable(0);
+self.stepFound = ko.observable(false);
+
+self.speeds = ko.observableArray([0,10,50,100,1000]);
+self.speed = ko.observable(0);
+
+self.algorithm = ko.observable();
+var fileInput = document.getElementById('fileInput');
+fileInput.addEventListener('change', self.onUpload);
+
+self.algorithms = ko.observableArray([]);
 
 
 /**
@@ -387,41 +366,9 @@ self.init = function() {
   Blockly.svgResize(self.workspace);
   self.workspace.traceOn(true);
   
-  
-  self.array = ko.observableArray();
-  self.succeeded = ko.observable(false);
-  self.n = ko.observable(20);
-  self.seed = ko.observable(124);
-  self.logs = ko.observableArray();
-  self.code = ko.observable();
-  self.variables = ko.observableArray();
-  self.running = ko.observable(false);
-  self.steps = ko.observable(0);
-  self.stepFound = ko.observable(false);
-  
-  self.speeds = ko.observableArray([0,10,50,100,1000]);
-  self.speed = ko.observable(0);
-  
-  self.algorithm = ko.observable();
-  
-  self.algorithms = ko.observableArray([]);
-  self.loadAlgorithms();
-  
-  self.newProblem();
-  
-  var fileInput = document.getElementById('fileInput');
-  fileInput.addEventListener('change', self.onUpload);
+  self.loadAlgorithms();  
 }
 
-// Activates knockout.js
-
+//self.init();
 };
 
-var model = null;
-var init = function() {
-  model = new Model();
-  model.init();
-  ko.applyBindings(model);
-}
-
-window.addEventListener('load', init);
