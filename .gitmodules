@@ -1,3 +1,6 @@
 [submodule "blockly"]
 	path = blockly
 	url = https://github.com/google/blockly.git
+[submodule "JS-Interpreter"]
+	path = JS-Interpreter
+	url = https://github.com/NeilFraser/JS-Interpreter.git
