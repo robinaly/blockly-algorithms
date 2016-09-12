@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="google" value="notranslate">
+  <title>Blockly Arrays</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="blockly/blockly_compressed.js"></script>
+  <script src="blockly/blocks_compressed.js"></script>
+  <script src="blockly/javascript_compressed.js"></script>
+  <script src="blockly/msg/js/en.js"></script>
+  <script src="knockout-3.4.0.js"></script>
+  <script src="JS-Interpreter/acorn_interpreter.js"></script>
+  <script src="blocks.js"></script>
+  <script src="mersenne-twister.js"></script>
+  <script src="download.js"></script>
+  
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+    .table {
+      height: 100%;
+      width: 100%;
+    }
+    #blocklyArea {
+      height: 99%;
+    }
+    #faright {
+      text-align: right;
+    }
+    .arraytd {
+      border: 1px solid black;
+      padding: 5px;
+      width: 20px;
+    }
+  </style>
+  <script src="code-sort.js"></script>
+</head>
+<body>
+  <table class="table">
+    <tr>
+      <td>
+        <h1>Blockly Arrays</h1>
+        <input type="submit" data-bind="click: newProblem" value="New problem">
+        <input type="submit" data-bind="click: sortedProblem" value="Sorted problem">
+        <input type="submit" data-bind="click: invSortedProblem" value="Inverse Sorted problem">
+        <input type="submit" data-bind="click: reset" value="Reset">
+        <input data-bind="value: seed"></input>
+      </td>
+      <td id="farright">
+        Algorithm: <select data-bind="options: algorithms, value: algorithm, event:{ change: changeAlgorithm}"></select>
+        Speed: <select data-bind="options: speeds, value: speed"></select></br>
+        </br>
+        <input id="clear" type="submit"  value="Clear"  data-bind="click: clear"></input> 
+        <input id="save" type="submit"   value="Save"   data-bind="click: save"></input> 
+        <input id="delete" type="submit" value="Delete" data-bind="click: runDelete"></input>
+        <input id="download" type="submit" value="Download" data-bind="click: download"></input>
+        Upload: <input type="file" id="fileInput" value="Upload">
+        <input id="play" type="submit"   value="Play"   data-bind="click: play"></input>
+        <input id="step" type="submit"   value="Step"   data-bind="click: step"></input>
+        
+      </td>
+    </tr>
+    <tr>
+      <td style="width:40%; padding:5px">
+        <div style="overflow-y: scroll; height:100%;">
+        <h3>Status</h3>
+        <div data-bind="style: {color: running() ? 'green' : 'red'}, text: running() ? 'running' : 'stopped'"></div>
+        <div>Steps <span data-bind="text: steps"></span></div>
+        
+        <h3>Array</h3>
+        <table>
+          <tr data-bind="foreach: array">
+            <td class="arraytd" >
+              <span data-bind="text: $index"/>
+            </td>
+          </tr>
+          <tr data-bind="foreach: array">
+            <td class="arraytd">
+              <span data-bind="text: $data"/>
+            </td>
+          </tr>
+        </table>
+        
+        <!-- <h3>Algorithms</h3>
+        <table>
+          <tbody data-bind="foreach: algorithms">
+          <tr>
+            <td class="arraytd"><span data-bind="text: $data"></span></td>
+          </tr>
+          </tbody>
+        </table> -->
+        
+        <h3>Variables</h3>
+        <table>
+          <tbody data-bind="foreach: variables">
+          <tr>
+            <td class="arraytd"><span data-bind="text: name"></span></td> 
+            <td class="arraytd"><span data-bind="text: val"></span></td>
+          </tr>
+          </tbody>
+        </table>
+        
+        <!-- <h3>Logs</h3>
+        <div data-bind="foreach: logs">
+          <div data-bind="text: $data">
+          </div>
+        </div> -->
+
+        <h3>Succeeded</h3>
+        <div data-bind="text: succeeded"></div>
+        
+        <!-- <h3>Code</h3>
+        <pre data-bind="text: code">
+        </pre> -->
+      </div>
+      </td>
+      <td id="blocklyArea" colspan="2">
+      </td>
+    </tr>
+  </table>
+
+  <div id="blocklyDiv" style="position: absolute"></div>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Operations">
+      <block type="controls_if"></block>
+      <block type="controls_repeat_ext"></block>
+      <block type="controls_flow_statements"></block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+      
+      <block type="logic_operation"></block>
+      <block type="logic_compare"></block>
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+      <block type="text"></block>
+      <block type="text_print"></block>
+      <block type="array_swap"></block>
+      <block type="array_length"></block>
+      <block type="array_get"></block>
+      <block type="array_set"></block>
+    </category>
+    <category name="Variables" custom="VARIABLE"></category>
+    <category name="Functions" custom="PROCEDURE"></category>
+  </xml>
+  
+</body>
+</html>
