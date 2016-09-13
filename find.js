@@ -3,12 +3,23 @@ function FindModel() {
   Model.call(this);
   
   self.title("Blockly Find");
+  self.problem = ko.computed(function() {
+    return "Define an algorithm that determines the index in the shown array where the corresponding element has the value of the searched element. Store this index in a variable called 'output'";
+  }, self);
+  
   
   self.checkSucceeded = function() {
     var valid = false;
+    var idx = -1;
+    for (var i=0; i<self.array().length; i++) {
+      if (self.array()[i] == self.toFind()) {
+        idx = i;
+        break;
+      }
+    }
     for (var i=0; i<self.variables().length; i++) {
       if (self.variables()[i].name() == "output") {
-        if (self.variables()[i].val() == self.toFind()) {
+        if (self.variables()[i].val() == idx) {
           valid = true;
         }
         break;

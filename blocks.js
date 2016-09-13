@@ -23,7 +23,7 @@ Blockly.Blocks['array_swap'] = {
       "inputsInline": true,
       "previousStatement": null,
       "nextStatement": null,
-      "colour": Blockly.Blocks.loops.HUE,
+      "colour": Blockly.Blocks.lists.HUE,
       "helpUrl": Blockly.Msg.CONTROLS_FOR_HELPURL
     });
     // Assign 'this' to a variable for use in the tooltip closure below.
@@ -62,7 +62,7 @@ Blockly.Blocks['array_get'] = {
       ],
       "inputsInline": true,
       "output": "Number",
-      "colour": Blockly.Blocks.loops.HUE,
+      "colour": Blockly.Blocks.lists.HUE,
       "helpUrl": Blockly.Msg.CONTROLS_FOR_HELPURL
     });
     // Assign 'this' to a variable for use in the tooltip closure below.
@@ -105,7 +105,7 @@ Blockly.Blocks['array_set'] = {
       "previousStatement": null,
       "nextStatement": null,
       "inputsInline": true,
-      "colour": Blockly.Blocks.loops.HUE,
+      "colour": Blockly.Blocks.lists.HUE,
       "helpUrl": Blockly.Msg.CONTROLS_FOR_HELPURL
     });
     // Assign 'this' to a variable for use in the tooltip closure below.

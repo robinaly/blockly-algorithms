@@ -34,17 +34,20 @@
     .table {
       height: 100%;
       width: 100%;
+      margin: 5px;
     }
     #blocklyArea {
       height: 99%;
-    }
-    #faright {
-      text-align: right;
     }
     .arraytd {
       border: 1px solid black;
       padding: 5px;
       width: 20px;
+    }
+    .controls {
+      margin-top: 5px;
+      padding-top: 5px;
+      padding-left: 5px;
     }
   </style>
   
@@ -53,33 +56,42 @@
   <table class="table">
     <tr>
       <td>
-        <h1 data-bind="text: title"></h1>
-        <input type="submit" data-bind="click: newProblem" value="New problem">
-        <input type="submit" data-bind="click: sortedProblem" value="Sorted problem">
-        <input type="submit" data-bind="click: invSortedProblem" value="Inverse Sorted problem">
-        <input type="submit" data-bind="click: reset" value="Reset">
-        <input data-bind="value: seed"></input>
-        Reverse sort: <input type="checkbox" data-bind="checked: reverse" />
+        <a href="index.html"><h1 data-bind="text: title"></h1></a>
+        <div class="controls">
+          Problem type: <input type="checkbox" data-bind="checked: reverse" /> reverse
+        </div>
+        <div class="controls">
+          Problem instance:
+          <input type="button" data-bind="click: newProblem" value="New"></input>
+          <input type="button" data-bind="click: sortedProblem" value="Sorted"></input>
+          <input type="button" data-bind="click: invSortedProblem" value="Inverse sorted"></input>
+          <input type="button" data-bind="click: reset" value="Reset"></input>
+          <input data-bind="value: seed"></input>
+        </div>
       </td>
-      <td id="farright">
-        Algorithm: <select data-bind="options: algorithms, value: algorithm, event:{ change: onChangeAlgorithm}"></select>
-        Speed: <select data-bind="options: speeds, value: speed"></select></br>
-        </br>
-        <input id="clear" type="submit"  value="Clear"  data-bind="click: clear"></input> 
-        <input id="save" type="submit"   value="Save"   data-bind="click: save"></input> 
-        <input id="delete" type="submit" value="Delete" data-bind="click: runDelete"></input>
-        <input id="download" type="submit" value="Download" data-bind="click: download"></input>
-        Upload: <input type="file" id="fileInput" value="Upload">
-        <input id="play" type="submit"   value="Play"   data-bind="click: play"></input>
-        <input id="step" type="submit"   value="Step"   data-bind="click: step"></input>
-        
+      <td>
+        <div class="controls">
+          Load algorithm: <select data-bind="options: algorithms, value: algorithm, event:{ change: onChangeAlgorithm}"></select>
+          <input id="delete" type="button" value="Delete selected" data-bind="click: runDelete"></input>
+          Upload: <input type="file" id="fileInput" value="Upload">
+          <input id="save" type="button"   value="Save"   data-bind="click: save"></input> 
+          <input id="download" type="button" value="Download" data-bind="click: download"></input>
+          <input id="clear" type="button"  value="Clear workspace"  data-bind="click: clear"></input> 
+        </div>
+        <div class="controls">
+          Run algorithm: 
+          <input id="play" type="button"   value="Play"   data-bind="click: play"></input>
+          <input id="step" type="button"   value="Step"   data-bind="click: step"></input>
+          Speed: <select data-bind="options: speeds, value: speed"></select></br>
+        </div>
       </td>
     </tr>
     <tr>
       <td style="width:40%; padding:5px">
-        <div style="overflow-y: scroll; height:100%;">
+        <div style="overflow-y: auto; height:100%;">
         <h3>Task</h3>
-        Define an algorithm in blockly that sorts the array below either in ascending or descending order, depending on sort order above.
+        <div data-bind="text: problem"></div>
+        
         <h3>Status</h3>
         <div data-bind="style: {color: running() ? 'green' : 'red'}, text: running() ? 'running' : 'stopped'"></div>
         <div>Steps <span data-bind="text: steps"></span></div>

@@ -7,6 +7,15 @@ function MinMaxModel() {
   
   self.minimum = ko.observable(true); 
   
+  self.problem = ko.computed(function() {
+    if (self.minimum()) {
+      return "Define an algorithm that finds the minimum value in an array and stores its index in a variable called 'output'.";
+    } else {
+      return "Define an algorithm that finds the maximum value in an array and stores its index in a variable called 'output'.";
+    }
+  }, self);
+  
+  
   self.checkSucceeded = function() {
     var valid = false;
     var min = self.minimum();

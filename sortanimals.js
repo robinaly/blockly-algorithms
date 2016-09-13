@@ -3,15 +3,14 @@ function SortModel() {
   self.prefix = 'xyz';
   Model.call(self);
   
-  self.title("Blocky Sort");
-  
+  self.title("Blocky Sort Animals");
   
   self.reverse = ko.observable(false); 
   self.problem = ko.computed(function() {
     if (self.reverse()) {
-      return "Define an algorithm in blockly that sorts the array below in descending order.";
+      return "Define an algorithm that sorts the array of animals below in descending order according to their weights:";
     } else {
-      return "Define an algorithm in blockly that sorts the array below in ascending order.";
+      return "Define an algorithm that sorts the array of animals below in ascending order according to their weights:";
     }
   }, self);
   
@@ -43,6 +42,22 @@ function SortModel() {
     self.seed(Math.ceil(Math.random() * 80) - 100);
     self.reset();
   }
+  
+  self.animalsLookup = {
+    'Tiger': 303,
+    'Elephant': 2721,
+    'Turtle': 249,
+    'Pelican': 14,
+    'Mouse': 0.019,
+    'Dog': 68,
+    'Horse': 453 
+  }
+  
+  self.animals = Object.keys(self.animalsLookup);
+  self.weights = [];
+  for (var x in self.animals) {
+    self.weights.push(self.animalsLookup[self.animals[x]]);
+  }
 
   self.reset = function() {
     var seed = self.seed();
@@ -50,30 +65,22 @@ function SortModel() {
     self.succeeded(false);
     self.steps(0);
     self.array.removeAll();
-  
-    if (seed < 0) {
-      var plus = (seed > -20) ? 1.0 : -1.0;
-      var rng = new MersenneTwister(Math.abs(seed));
-      var ar = [];
-      var last = 0;
-      var ma = -1E6;
-      var mi = 1E6;
-      for (var i=0; i<self.n(); i++) {
-        last += rng.random() * 50 * plus;
-        if (last>ma) ma = last;
-        if (last<mi) mi = last;
-        ar.push(last);
-      }
-      range = rng.random() * 40 + 50;
-      for (var x in ar) {
-        self.array.push( Math.floor((ar[x]-mi) / (ma-mi) * range));
-      }
-    } else {
-      var rng = new MersenneTwister(seed);
-      for (var i=0; i<self.n(); i++) {
-        self.array.push(Math.round(Math.ceil(rng.random() * 90) + 10))
-      }  
+    
+    var keys = self.animals;
+    var ar = [];
+    var rng = new MersenneTwister(seed);
+    for (var i=0; i<self.n(); i++) {
+      ar.push(keys[Math.floor(rng.random() * keys.length)]);
     }
+    
+    if (seed < 0) {
+      if (seed > -20) {
+        ar.sort()
+      } else {
+        ar.sort(function(a,b) { b-a;});
+      }
+    }
+    self.array(ar);
   }
 
   self.newProblem();  

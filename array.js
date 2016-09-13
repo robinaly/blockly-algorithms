@@ -133,6 +133,7 @@ self.array_length = function() {
 }
 
 self.array_get = function(i) {
+  console.log(self.array()[i]);
   return self.array()[i];
 }
 
@@ -312,9 +313,10 @@ self.onUpload = function() {
 }
 
 self.title = ko.observable();
+self.problem = ko.observable();
 self.array = ko.observableArray();
 self.succeeded = ko.observable(false);
-self.n = ko.observable(20);
+self.n = ko.observable(10);
 self.seed = ko.observable(124);
 self.logs = ko.observableArray();
 self.code = ko.observable();
@@ -368,7 +370,5 @@ self.init = function() {
   
   self.loadAlgorithms();  
 }
-
-//self.init();
 };
 

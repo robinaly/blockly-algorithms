@@ -1,19 +1,11 @@
 function SortModel() {
   var self = this;
-  self.prefix = 'xyz';
+
   Model.call(self);
   
-  self.title("Blocky Sort");
-  
+  self.title("Blocky Plain");
   
   self.reverse = ko.observable(false); 
-  self.problem = ko.computed(function() {
-    if (self.reverse()) {
-      return "Define an algorithm in blockly that sorts the array below in descending order.";
-    } else {
-      return "Define an algorithm in blockly that sorts the array below in ascending order.";
-    }
-  }, self);
   
   self.checkSucceeded = function() {
     var valid = true;
