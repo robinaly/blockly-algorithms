@@ -18,8 +18,10 @@ function SortModel() {
     var valid = true;
     var rev = self.reverse();
     for (var i=1; i<self.array().length; i++) {
-      if ((!rev & self.array()[i-1] > self.array()[i]) ||
-          (rev & self.array()[i-1] < self.array()[i]) ) {
+      var wi = self.animalsLookup[self.array()[i]];
+      var wimin = self.animalsLookup[self.array()[i-1]];
+      if ((!rev & wimin > wi) ||
+          (rev & wimin < wi) ) {
         valid = false;
         break;
       }

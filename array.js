@@ -30,18 +30,17 @@ var Model = function() {
 var self = this;
 self.doc = document;  
 
-/**
- * Blockly's main workspace.
- * @type {Blockly.WorkspaceSvg}
- */
 self.workspace = null;
 
 self.clear = function() {
-  self.workspace.clear();
-  self.algorithm('');
+  var answer = window.prompt("Are you sure you want to clear the workspace? (type yes)");
+  if (answer == "yes") {
+    self.workspace.clear();
+    self.algorithm('');
+  }
 }
 
-self.runDelete = function() {
+self.deleteBrowser = function() {
   if (self.algorithm() != '') {
     localStorage.removeItem(self.title() + ':' + self.algorithm());
     alert("Deleted");
@@ -49,7 +48,7 @@ self.runDelete = function() {
   self.loadAlgorithms();
 }
 
-self.save = function() {
+self.saveBrowser = function() {
   var xml = Blockly.Xml.workspaceToDom(self.workspace);
   var text = Blockly.Xml.domToText(xml);
   var name = window.prompt("Please insert algorithm name");
@@ -80,7 +79,6 @@ self.load = function(name) {
 }
 
 self.play = function() {
-  self.logs.push("Play");
   if (!self.interpreter) {
     self.compile();
   }
@@ -89,17 +87,23 @@ self.play = function() {
 }
 
 self.onestep = function() {
-  while (!self.stepFound()) {
-    if (!self.interpreter) return;
-    if (!self.interpreter.step()) {
-      self.running(false);
-      self.interpreter = null;
-      self.checkSucceeded();
-      return false;
+  try {
+    while (!self.stepFound()) {
+      if (!self.interpreter) return false;
+      if (!self.interpreter.step()) {
+        self.interpreter = null;
+        self.running(false);
+        self.checkSucceeded();
+        return false;
+      }
     }
+    self.steps(self.steps()+1);
+    return true;
+  } catch (err) {
+    self.interpreter = null;
+    self.running(false);
+    alert(err);
   }
-  self.steps(self.steps()+1);
-  return true;
 }
 
 self.step = function() {
@@ -124,7 +128,6 @@ self.swap = function(i,j) {
   var temp = self.array()[i];
   self.array()[i] = self.array()[j];
   self.array()[j] = temp;
-  self.logs.push("Swapped " + i + " with " + j);
   self.array.valueHasMutated();
 }
 
@@ -133,7 +136,6 @@ self.array_length = function() {
 }
 
 self.array_get = function(i) {
-  console.log(self.array()[i]);
   return self.array()[i];
 }
 
@@ -142,11 +144,8 @@ self.array_set = function(i,v) {
   self.array.valueHasMutated();
 }
 
-self.highlightBlock = function(id) {
+self.update = function(id, data) {
   self.workspace.highlightBlock(id);
-}
-
-self.update = function(data) {
   self.stepFound(true);
   self.variables.removeAll();
   var data = JSON.parse(data);
@@ -228,11 +227,11 @@ self.initApi = function(interpreter, scope) {
   interpreter.setProperty(scope, 'highlightBlock',
       interpreter.createNativeFunction(wrapper));
   
-  // dump variables
-  var wrapper = function(data) {
-    self.update(data.data);
+  // update variables
+  var wrapper = function(id, data) {
+    self.update(id, data.data);
     return null;
-    };
+  };
   interpreter.setProperty(scope, 'update',
       interpreter.createNativeFunction(wrapper));
 }
@@ -240,23 +239,20 @@ self.initApi = function(interpreter, scope) {
 self.compile = function() {
   self.succeeded(false);
   self.steps(0);
-  self.logs.push("Compile");
   var code = Blockly.JavaScript.workspaceToCode(self.workspace);
   code += '\n\n';
   code += "function step(id) {\n";
   code += "  var data = {};\n";
-  code += "  highlightBlock(id);\n";
   for (var i in self.workspace.variableList) {
     var v = self.workspace.variableList[i];
-    code += "    data." + v + " = " + v + ';\n';
+    code += "  data." + v + " = " + v + ';\n';
   }
-  code += '    update(JSON.stringify(data));\n';
+  code += '  update(id, JSON.stringify(data));\n';
   code += '}\n';
   self.code(code);
+  console.log(code);
   self.interpreter = new Interpreter(code, self.initApi);
 }
-
-
 
 self.Variable = function(name, val) {
   var self = this;
@@ -286,31 +282,35 @@ self.loadAlgorithms = function() {
 self.download = function() {
   var xml = Blockly.Xml.workspaceToDom(self.workspace);
   var text = Blockly.Xml.domToText(xml);
-  
   download(text, self.algorithm()+".xml", "text/xml");
 }
 
 self.onUpload = function() {
   var fileInput = document.getElementById('fileInput');
   var file = fileInput.files[0];
-	var textType = /text.*/;
+  var textType = /text.*/;
 
-	if (file.type.match(textType)) {
-		var reader = new FileReader();
+  if (file.type.match(textType)) {
+    var reader = new FileReader();
 
-		reader.onload = function(e) {
+    reader.onload = function(e) {
       var xmlDom = Blockly.Xml.textToDom(reader.result);
       self.workspace.clear();
       Blockly.Xml.domToWorkspace(xmlDom, self.workspace);
       self.interpreter = null;
       self.algorithm('');
-		}
-
-		reader.readAsText(file);	
-	} else {
+      fileInput.value = '';
+    }
+    reader.readAsText(file);
+  } else {
     alert("error");
-	}
+  }
 }
+
+self.upload = function() {
+  $('#fileInput').click();
+}
+
 
 self.title = ko.observable();
 self.problem = ko.observable();
@@ -318,7 +318,6 @@ self.array = ko.observableArray();
 self.succeeded = ko.observable(false);
 self.n = ko.observable(10);
 self.seed = ko.observable(124);
-self.logs = ko.observableArray();
 self.code = ko.observable();
 self.variables = ko.observableArray();
 self.running = ko.observable(false);
@@ -334,9 +333,31 @@ fileInput.addEventListener('change', self.onUpload);
 
 self.algorithms = ko.observableArray([]);
 
+self.status = ko.computed(function() {
+  if (self.running() && self.interpreter != null) {
+    return "running";
+  } else if (self.interpreter != null) {
+    return "paused";
+  } else {
+    return "stopped";
+  }
+}, self);
+
+self.onChange = function(event) {
+  if (
+      event.type == Blockly.Events.CHANGE ||
+      event.type == Blockly.Events.MOVE ||
+      event.type == Blockly.Events.CREATE
+      ) {
+    self.interpreter = null;
+    self.running(false);
+    self.steps(0);
+  }
+}
+
 
 /**
- * Initialize Blockly.  Called on page load.
+ * Initialize Blockly. Called on page load.
  */
 self.init = function() {
   // Interpolate translated messages into toolbox.
@@ -344,6 +365,14 @@ self.init = function() {
   var blocklyDiv = self.doc.getElementById('blocklyDiv');
   self.workspace = Blockly.inject(
     blocklyDiv, {
+      zoom: {
+      controls: true,
+      wheel: false,
+      startScale: 1.0,
+      maxScale: 3,
+      minScale: 0.3,
+      scaleSpeed: 1.2,
+      trashcan: true},
       toolbox: self.doc.getElementById('toolbox')
     }
   );
@@ -364,6 +393,7 @@ self.init = function() {
     blocklyDiv.style.height = blocklyArea.offsetHeight + 'px';
   };
   window.addEventListener('resize', onresize, false);
+  self.workspace.addChangeListener(self.onChange);
   onresize();
   Blockly.svgResize(self.workspace);
   self.workspace.traceOn(true);

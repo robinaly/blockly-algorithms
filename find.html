@@ -58,27 +58,36 @@
         <a href="index.html"><h1 data-bind="text: title"></h1></a>
         <div class="controls">
           Problem instance:
+          <input data-bind="value: seed" size="4"></input>
           <input type="button" data-bind="click: newProblem" value="New"></input>
-          <input type="button" data-bind="click: sortedProblem" value="Sorted"></input>
-          <input type="button" data-bind="click: invSortedProblem" value="Inverse sorted"></input>
+          <!-- <input type="button" data-bind="click: sortedProblem" value="Sorted"></input>
+          <input type="button" data-bind="click: invSortedProblem" value="Inverse sorted"></input> -->
+
           <input type="button" data-bind="click: reset" value="Reset"></input>
-          <input data-bind="value: seed"></input>
+          Length:
+          <input data-bind="value: n" size="4"></input>
         </div>
       </td>
       <td>
         <div class="controls">
-          Load algorithm: <select data-bind="options: algorithms, value: algorithm, event:{ change: onChangeAlgorithm}"></select>
-          <input id="delete" type="button" value="Delete selected" data-bind="click: runDelete"></input>
-          Upload: <input type="file" id="fileInput" value="Upload">
-          <input id="save" type="button"   value="Save"   data-bind="click: save"></input> 
+          Browser memory: Load: <select data-bind="options: algorithms, value: algorithm, event:{ change: onChangeAlgorithm}"></select>
+          <input id="save" type="button"   value="Save"   data-bind="click: saveBrowser"></input> 
+          <input id="delete" type="button" value="Delete" data-bind="click: deleteBrowser"></input>
+          
+          From Disk: 
+          <input id="upload" type="button" value="Upload" data-bind="click: upload"></input>
+          <input id="fileInput" type="file"/>
           <input id="download" type="button" value="Download" data-bind="click: download"></input>
-          <input id="clear" type="button"  value="Clear workspace"  data-bind="click: clear"></input> 
+          
         </div>
         <div class="controls">
-          Run algorithm: 
-          <input id="play" type="button"   value="Play"   data-bind="click: play"></input>
+          Algorithm: 
+          <input id="clear" type="button"  value="Clear"  data-bind="click: clear"></input> 
+          <input id="play" type="button"   value="Play"   data-bind="click: play, value: running() ? 'Pause' : 'Run'"></input>
           <input id="step" type="button"   value="Step"   data-bind="click: step"></input>
-          Speed: <select data-bind="options: speeds, value: speed"></select></br>
+          Speed: <select data-bind="options: speeds, value: speed"></select>
+          <span data-bind="style: {color: status() == 'stopped' ? 'red' : 'green'}, text: status"></span>
+          <span>Steps: <span data-bind="text: steps"></span></span>
         </div>
       </td>
     </tr>

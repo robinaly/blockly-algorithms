@@ -49,6 +49,7 @@
       padding-top: 5px;
       padding-left: 5px;
     }
+
   </style>
   
 </head>
@@ -62,27 +63,36 @@
         </div>
         <div class="controls">
           Problem instance:
+          <input data-bind="value: seed" size="4"></input>
           <input type="button" data-bind="click: newProblem" value="New"></input>
-          <input type="button" data-bind="click: sortedProblem" value="Sorted"></input>
-          <input type="button" data-bind="click: invSortedProblem" value="Inverse sorted"></input>
+          <!-- <input type="button" data-bind="click: sortedProblem" value="Sorted"></input>
+          <input type="button" data-bind="click: invSortedProblem" value="Inverse sorted"></input> -->
+
           <input type="button" data-bind="click: reset" value="Reset"></input>
-          <input data-bind="value: seed"></input>
+          Length:
+          <input data-bind="value: n" size="4"></input>
         </div>
       </td>
       <td>
         <div class="controls">
-          Load algorithm: <select data-bind="options: algorithms, value: algorithm, event:{ change: onChangeAlgorithm}"></select>
-          <input id="delete" type="button" value="Delete selected" data-bind="click: runDelete"></input>
-          Upload: <input type="file" id="fileInput" value="Upload">
-          <input id="save" type="button"   value="Save"   data-bind="click: save"></input> 
+          Browser memory: Load: <select data-bind="options: algorithms, value: algorithm, event:{ change: onChangeAlgorithm}"></select>
+          <input id="save" type="button"   value="Save"   data-bind="click: saveBrowser"></input> 
+          <input id="delete" type="button" value="Delete" data-bind="click: deleteBrowser"></input>
+          
+          From Disk: 
+          <input id="upload" type="button" value="Upload" data-bind="click: upload"></input>
+          <input id="fileInput" type="file"/>
           <input id="download" type="button" value="Download" data-bind="click: download"></input>
-          <input id="clear" type="button"  value="Clear workspace"  data-bind="click: clear"></input> 
+          
         </div>
         <div class="controls">
-          Run algorithm: 
-          <input id="play" type="button"   value="Play"   data-bind="click: play"></input>
+          Algorithm: 
+          <input id="clear" type="button"  value="Clear"  data-bind="click: clear"></input> 
+          <input id="play" type="button"   value="Play"   data-bind="click: play, value: running() ? 'Pause' : 'Run'"></input>
           <input id="step" type="button"   value="Step"   data-bind="click: step"></input>
-          Speed: <select data-bind="options: speeds, value: speed"></select></br>
+          Speed: <select data-bind="options: speeds, value: speed"></select>
+          <span data-bind="style: {color: status() == 'stopped' ? 'red' : 'green'}, text: status"></span>
+          <span>Steps: <span data-bind="text: steps"></span></span>
         </div>
       </td>
     </tr>
@@ -91,10 +101,6 @@
         <div style="overflow-y: auto; height:100%;">
         <h3>Task</h3>
         <div data-bind="text: problem"></div>
-        
-        <h3>Status</h3>
-        <div data-bind="style: {color: running() ? 'green' : 'red'}, text: running() ? 'running' : 'stopped'"></div>
-        <div>Steps <span data-bind="text: steps"></span></div>
         
         <h3>Array</h3>
         <table>
@@ -129,18 +135,12 @@
           </tbody>
         </table>
         
-        <!-- <h3>Logs</h3>
-        <div data-bind="foreach: logs">
-          <div data-bind="text: $data">
-          </div>
-        </div> -->
-
         <h3>Succeeded</h3>
         <div data-bind="text: succeeded"></div>
         
         <!-- <h3>Code</h3>
-        <pre data-bind="text: code">
-        </pre> -->
+        <pre data-bind="text: code"> -->
+        </pre>
       </div>
       </td>
       <td id="blocklyArea" style="padding: 5px;" colspan="2">
@@ -151,8 +151,12 @@
   <div id="blocklyDiv" style="position: absolute; padding: 5px"></div>
 
   <xml id="toolbox" style="display: none">
-    <category name="Operations">
+    <category name="Conditional">
+      <block type="logic_operation"></block>
+      <block type="logic_compare"></block>
       <block type="controls_if"></block>
+    </category>
+    <category name="Loops">
       <block type="controls_repeat_ext"></block>
       <block type="controls_flow_statements"></block>
       <block type="controls_whileUntil"></block>
@@ -173,13 +177,15 @@
           </shadow>
         </value>
       </block>
-      
-      <block type="logic_operation"></block>
-      <block type="logic_compare"></block>
+    </category>
+    <category name="Math/Text">
       <block type="math_number"></block>
       <block type="math_arithmetic"></block>
+      <block type="math_round"></block>
       <block type="text"></block>
       <block type="text_print"></block>
+    </category>
+    <category name="Array">
       <block type="array_swap"></block>
       <block type="array_length"></block>
       <block type="array_get"></block>
