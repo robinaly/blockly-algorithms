@@ -1,4 +1,4 @@
-function SortModel() {
+function PlainModel() {
   var self = this;
 
   Model.call(self);
@@ -70,8 +70,8 @@ function SortModel() {
 
   self.newProblem();  
 }
-SortModel.prototype = Object.create(Model.prototype);
+PlainModel.prototype = Object.create(Model.prototype);
 
-SortModel.prototype.init = function() {
+PlainModel.prototype.init = function() {
   Object.getPrototypeOf(SortModel.prototype).init.call(this);
 }

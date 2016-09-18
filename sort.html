@@ -134,6 +134,9 @@
           </tr>
           </tbody>
         </table>
+        <div data-bind="if: variables().length==0">
+          None
+        </div>
         
         <h3>Succeeded</h3>
         <div data-bind="text: succeeded"></div>

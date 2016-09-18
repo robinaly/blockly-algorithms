@@ -5,7 +5,6 @@ function SortModel() {
   
   self.title("Blocky Sort");
   
-  
   self.reverse = ko.observable(false); 
   self.problem = ko.computed(function() {
     if (self.reverse()) {

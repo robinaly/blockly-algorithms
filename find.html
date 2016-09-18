@@ -143,6 +143,9 @@
             </tr>
             </tbody>
           </table>
+          <div data-bind="if: variables().length==0">
+            None
+          </div>
         
           <!-- <h3>Logs</h3>
           <div data-bind="foreach: logs">
@@ -199,7 +202,6 @@
       <block type="array_length"></block>
       <block type="array_get"></block>
       <block type="array_set"></block>
-      <block type="array_element"></block>
     </category>
     <category name="Variables" custom="VARIABLE"></category>
     <category name="Functions" custom="PROCEDURE"></category>
