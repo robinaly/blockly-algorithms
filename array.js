@@ -355,6 +355,9 @@ self.onChange = function(event) {
   }
 }
 
+self.localInit = function() {
+  console.log("hello");
+}
 
 /**
  * Initialize Blockly. Called on page load.
@@ -398,7 +401,8 @@ self.init = function() {
   Blockly.svgResize(self.workspace);
   self.workspace.traceOn(true);
   
-  self.loadAlgorithms();  
+  self.loadAlgorithms();
+  self.localInit(); 
 }
 };
 
