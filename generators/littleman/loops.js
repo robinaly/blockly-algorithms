@@ -77,7 +77,6 @@ Blockly.LittleMan['controls_for'] = function(block) {
   code += '\n' + Blockly.LittleMan.instruction2('SUB', addressTo);
   //code += '\n' + Blockly.LittleMan.instruction2('ADD', 'one');
   code += '\n' + Blockly.LittleMan.instruction2('BRP', finish);
-  code += '\n' + Blockly.LittleMan.instruction1('// body of loop');
   code += '\n' + branch; 
   //code += '\n' + Blockly.LittleMan.instruction1('// store last accumulator');
   code += '\n' + Blockly.LittleMan.instruction2('STA', LAST);

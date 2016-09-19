@@ -1,45 +1,45 @@
-Blockly.Blocks['alg_input'] = {
-  init: function() {
-    this.appendDummyInput()
-        .appendField("Input");
-    this.appendValueInput("Description")
-        .setCheck(null)
-        .appendField("Name");
-    this.appendStatementInput("Input")
-        .setCheck(null);
-    this.setNextStatement(true, null);
-    this.setColour(65);
-    this.setTooltip('');
-    this.setHelpUrl('http://www.example.com/');
-  }
-};
+// Blockly.Blocks['alg_input'] = {
+//   init: function() {
+//     this.appendDummyInput()
+//         .appendField("Input");
+//     this.appendValueInput("Description")
+//         .setCheck(null)
+//         .appendField("Name");
+//     this.appendStatementInput("Input")
+//         .setCheck(null);
+//     this.setNextStatement(true, null);
+//     this.setColour(65);
+//     this.setTooltip('');
+//     this.setHelpUrl('http://www.example.com/');
+//   }
+// };
+//
+// Blockly.JavaScript['alg_input'] = function(block) {
+//   var value_description = Blockly.JavaScript.valueToCode(block, 'Description', Blockly.JavaScript.ORDER_ATOMIC);
+//   var statements_input = Blockly.JavaScript.statementToCode(block, 'Input');
+//   // TODO: Assemble JavaScript into code variable.
+//   var code = '...;\n';
+//   return code;
+// };
+//
+// Blockly.Blocks['alg_output'] = {
+//   init: function() {
+//     this.appendValueInput("Description")
+//         .setCheck(null)
+//         .appendField("Output");
+//     this.setPreviousStatement(true, null);
+//     this.setColour(65);
+//     this.setTooltip('');
+//     this.setHelpUrl('http://www.example.com/');
+//   }
+// };
 
-Blockly.JavaScript['alg_input'] = function(block) {
-  var value_description = Blockly.JavaScript.valueToCode(block, 'Description', Blockly.JavaScript.ORDER_ATOMIC);
-  var statements_input = Blockly.JavaScript.statementToCode(block, 'Input');
-  // TODO: Assemble JavaScript into code variable.
-  var code = '...;\n';
-  return code;
-};
-
-Blockly.Blocks['alg_output'] = {
-  init: function() {
-    this.appendValueInput("Description")
-        .setCheck(null)
-        .appendField("Output");
-    this.setPreviousStatement(true, null);
-    this.setColour(65);
-    this.setTooltip('');
-    this.setHelpUrl('http://www.example.com/');
-  }
-};
-
-Blockly.JavaScript['alg_output'] = function(block) {
-  var value_description = Blockly.JavaScript.valueToCode(block, 'Description', Blockly.JavaScript.ORDER_ATOMIC);
-  // TODO: Assemble JavaScript into code variable.
-  var code = '...;\n';
-  return code;
-};
+// Blockly.JavaScript['alg_output'] = function(block) {
+//   var value_description = Blockly.JavaScript.valueToCode(block, 'Description', Blockly.JavaScript.ORDER_ATOMIC);
+//   // TODO: Assemble JavaScript into code variable.
+//   var code = '...;\n';
+//   return code;
+// };
 
 Blockly.Blocks['math_plusminus'] = {
   /**
@@ -87,30 +87,6 @@ Blockly.Blocks['math_plusminus'] = {
 };
 
 Blockly.JavaScript['math_plusminus'] = function(block) {
-  // Basic arithmetic operators, and power.
-  var OPERATORS = {
-    'ADD': [' + ', Blockly.JavaScript.ORDER_ADDITION],
-    'MINUS': [' - ', Blockly.JavaScript.ORDER_SUBTRACTION],
-    'MULTIPLY': [' * ', Blockly.JavaScript.ORDER_MULTIPLICATION],
-    'DIVIDE': [' / ', Blockly.JavaScript.ORDER_DIVISION],
-    'POWER': [null, Blockly.JavaScript.ORDER_COMMA]  // Handle power separately.
-  };
-  var tuple = OPERATORS[block.getFieldValue('OP')];
-  var operator = tuple[0];
-  var order = tuple[1];
-  var argument0 = Blockly.JavaScript.valueToCode(block, 'A', order) || '0';
-  var argument1 = Blockly.JavaScript.valueToCode(block, 'B', order) || '0';
-  var code;
-  // Power in JavaScript requires a special case since it has no operator.
-  if (!operator) {
-    code = 'Math.pow(' + argument0 + ', ' + argument1 + ')';
-    return [code, Blockly.JavaScript.ORDER_FUNCTION_CALL];
-  }
-  code = argument0 + operator + argument1;
-  return [code, order];
-};
-
-Blockly.Python['math_plusminus'] = function(block) {
   // Basic arithmetic operators, and power.
   var OPERATORS = {
     'ADD': [' + ', Blockly.JavaScript.ORDER_ADDITION],

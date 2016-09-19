@@ -6,13 +6,10 @@
   <title>Blockly LittleMan Programming</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="knockout-3.4.0.js"></script>
   <script src="blockly/blockly_compressed.js"></script>
   <script src="blockly/blocks_compressed.js"></script>
   <script src="blockly/javascript_compressed.js"></script>
-  <script src="blockly/python_compressed.js"></script>
-  <script src="blockly/php_compressed.js"></script>
-  <script src="blockly/lua_compressed.js"></script>
-  <script src="blockly/dart_compressed.js"></script>
   <script src="generators/littleman.js"></script>
   <script src="generators/littleman/colour.js"></script>
   <script src="generators/littleman/lists.js"></script>
@@ -22,64 +19,103 @@
   <script src="generators/littleman/procedures.js"></script>
   <script src="generators/littleman/variables.js"></script>
   <script src="generators/littleman/text.js"></script>
-  <script src="newblocks.js"></script>
+  <script src="./blockly/demos/code/msg/en.js"></script>
+  <script src="./blockly/msg/js/en.js"></script>
+  <script src="JS-Interpreter/acorn_interpreter.js"></script>
+  <script src="mersenne-twister.js"></script>
+  <script src="littleman_blocks.js"></script>
+  <script src="download.js"></script>
+  <script src="array.js"></script>
   <script src="littleman.js"></script>
+  <script src="sort.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+    .table {
+      height: 100%;
+      width: 100%;
+      margin: 5px;
+    }
+    #blocklyArea {
+      height: 99%;
+    }
+    .arraytd {
+      border: 1px solid black;
+      padding: 5px;
+      width: 20px;
+    }
+    .controls {
+      margin-top: 5px;
+      padding-top: 5px;
+      padding-left: 5px;
+    }
+  </style>
 </head>
 <body>
-  <table width="100%" height="100%">
+  <table class="table">
     <tr>
       <td>
-        <h1><a href="..">Blockly - LittleMan Programming<a></h1>
-        Try code with the <a href="http://peterhigginson.co.uk/LMC/" target="_newtab">little man simulator</a>.
+        <a href="index.html"><h1 data-bind="text: title"></h1></a>
+        <div class="controls">
+          <input id="tolm" type="button"   value="Compile"   data-bind="click: toLittleMan"></input> 
+        </div>
       </td>
-      <td class="farSide">
-        <select id="languageMenu"></select>
-      </td>
-    </tr>
-    <tr>
-      <td colspan=2>
-        <table width="100%">
-          <tr id="tabRow" height="1em">
-            <td id="tab_blocks" class="tabon">...</td>
-            <td class="tabmin">&nbsp;</td>
-            <td id="tab_littleman" class="taboff">Littelman</td>
-            <td class="tabmin">&nbsp;</td>
-            <td id="tab_xml" class="taboff">XML</td>
-            <td class="tabmax">
-              <button id="trashButton" class="notext" title="...">
-                <img src='blockly/media/1x1.gif' class="trash icon21">
-              </button>
-              <button id="linkButton" class="notext" title="...">
-                <img src='blockly/media/1x1.gif' class="link icon21">
-              </button>
-              <button id="runButton" class="notext primary" title="...">
-                <img src='blockly/media/1x1.gif' class="run icon21">
-              </button>
-            </td>
-          </tr>
-        </table>
+      <td>
+        <div class="controls">
+          Browser memory: Load: <select data-bind="options: algorithms, value: algorithm, event:{ change: onChangeAlgorithm}"></select>
+          <input id="save" type="button"   value="Save"   data-bind="click: saveBrowser"></input> 
+          <input id="delete" type="button" value="Delete" data-bind="click: deleteBrowser"></input>
+          
+          From Disk: 
+          <input id="upload" type="button" value="Upload" data-bind="click: upload"></input>
+          <input id="fileInput" type="file"/>
+          <input id="download" type="button" value="Download" data-bind="click: download"></input>
+          
+        </div>
+        <div class="controls">
+          Algorithm: 
+          <input id="clear" type="button"  value="Clear"  data-bind="click: clear"></input> 
+          <input id="play" type="button"   value="Play"   data-bind="click: play, value: running() ? 'Pause' : 'Run'"></input>
+          <input id="step" type="button"   value="Step"   data-bind="click: step"></input>
+          Speed: <select data-bind="options: speeds, value: speed"></select>
+          <span data-bind="style: {color: status() == 'stopped' ? 'red' : 'green'}, text: status"></span>
+          <span>Steps: <span data-bind="text: steps"></span></span>
+        </div>
       </td>
     </tr>
     <tr>
-      <td height="99%" colspan=2 id="content_area">
+      <td style="width:40%; padding:5px">
+      <div style="overflow-y: auto; height:100%;">
+      <pre data-bind="text: littleman">
+      </pre>
+      <div data-bind="if: littleman">
+        Copy code and try with the <a href="http://peterhigginson.co.uk/LMC/" target="_newtab">little man simulator</a>.
+      </div>
+      </div>
+      </td>
+      <td id="blocklyArea" style="padding: 5px;" colspan="2">
       </td>
     </tr>
   </table>
-  <div id="content_blocks" class="content"></div>
-  <pre id="content_python" class="content"></pre>
-  <pre id="content_php" class="content"></pre>
-  <pre id="content_lua" class="content"></pre>
-  <pre id="content_dart" class="content"></pre>
-  <pre id="content_littleman" class="content"></pre>
-  <textarea id="content_xml" class="content" wrap="off"></textarea>
+
+  <div id="blocklyDiv" style="position: absolute; padding: 5px"></div>
 
   <xml id="toolbox" style="display: none">
     <category name="Blocks" colour="210">
       <block type="controls_if"></block>
       <block type="logic_compare"></block>
-      <!-- <block type="logic_operation"></block>
-      <block type="logic_negate"></block>
-      <block type="logic_boolean"></block> -->
       <block type="math_number"></block>
       <block type="math_plusminus">
         <field name="OP">ADD</field>
@@ -130,9 +166,20 @@
     </category>
 
     <sep></sep>
-    <category name="{catVariables}" colour="330" custom="VARIABLE"></category>
-    <category name="{catFunctions}" colour="290" custom="PROCEDURE"></category>
+    <category name="Variables" colour="330" custom="VARIABLE"></category>
+    <category name="Functions" colour="290" custom="PROCEDURE"></category>
   </xml>
+
+  <script>
+  var model = null;
+  var init = function() {
+    model = new LMModel();
+    model.init();
+    ko.applyBindings(model);
+  }
+
+  window.addEventListener('load', init);
+  </script>
 
 </body>
 </html>

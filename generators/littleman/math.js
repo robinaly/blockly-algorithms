@@ -33,7 +33,7 @@ Blockly.LittleMan['math_number'] = function(block) {
   // Numeric value.
   var val = parseFloat(block.getFieldValue('NUM'));
   var TAG = Blockly.LittleMan.makeTemp(val)
-  var code = Blockly.LittleMan.instruction2('LDA', TAG);
+  var code = '\n' + Blockly.LittleMan.instruction2('LDA', TAG);
   return [code, Blockly.LittleMan.ORDER_ATOMIC];
 };
 
@@ -233,12 +233,21 @@ Blockly.LittleMan['math_number_property'] = function(block) {
 
 Blockly.LittleMan['math_change'] = function(block) {
   // Add to a variable in place.
-  var argument0 = Blockly.LittleMan.valueToCode(block, 'DELTA',
-      Blockly.LittleMan.ORDER_ADDITION) || '0';
+  var code = '';
   var varName = Blockly.LittleMan.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
-  return varName + ' = (typeof ' + varName + ' == \'number\' ? ' + varName +
-      ' : 0) + ' + argument0 + ';\n';
+  
+  code +=  Blockly.LittleMan.instruction2('LDA', varName);
+  var B = block.getInputTargetBlock('DELTA');
+  var addr = Blockly.LittleMan.getAddress(B);
+  if (addr == null) {
+    code += Blockly.LittleMan.valueToCode(block, 'VALUE',
+      Blockly.LittleMan.ORDER_ASSIGNMENT) || '0';
+  } else {
+    code += '\n' +  Blockly.LittleMan.instruction2('ADD', addr);
+  }
+  code += '\n' +  Blockly.LittleMan.instruction2('STA', varName);
+  return code
 };
 
 // Rounding functions have a single operand.

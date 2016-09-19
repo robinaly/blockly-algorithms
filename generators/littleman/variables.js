@@ -39,10 +39,18 @@ Blockly.LittleMan['variables_get'] = function(block) {
 
 Blockly.LittleMan['variables_set'] = function(block) {
   // Variable setter.
-  var argument0 = Blockly.LittleMan.valueToCode(block, 'VALUE',
-      Blockly.LittleMan.ORDER_ASSIGNMENT) || '0';
   var varName = Blockly.LittleMan.variableDB_.getName(
       block.getFieldValue('VAR'), Blockly.Variables.NAME_TYPE);
-  return argument0 +
-         '\n' +  Blockly.LittleMan.instruction2('STA', varName);
+      
+  var code = '';
+  var B = block.getInputTargetBlock('VALUE');
+  var addr = Blockly.LittleMan.getAddress(B);
+  if (addr == null) {
+    code += Blockly.LittleMan.valueToCode(block, 'VALUE',
+      Blockly.LittleMan.ORDER_ASSIGNMENT) || '0';
+  } else {
+    code += '\n' +  Blockly.LittleMan.instruction2('LDA', addr);
+  }
+  code += '\n' +  Blockly.LittleMan.instruction2('STA', varName);
+  return code
 };
