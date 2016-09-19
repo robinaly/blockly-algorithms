@@ -3,7 +3,7 @@ function LanguagesModel() {
   self.prefix = 'xyz';
   Model.call(self);
 
-  self.title("Blocky Little Man");
+  self.title("Blocky Languages");
 
   self.checkSucceeded = function() {
   }
