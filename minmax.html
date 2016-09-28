@@ -158,8 +158,12 @@
   <div id="blocklyDiv" style="position: absolute; padding: 5px"></div>
 
   <xml id="toolbox" style="display: none">
-    <category name="Operations">
+    <category name="Conditional">
+      <block type="logic_operation"></block>
+      <block type="logic_compare"></block>
       <block type="controls_if"></block>
+    </category>
+    <category name="Loops">
       <block type="controls_repeat_ext"></block>
       <block type="controls_flow_statements"></block>
       <block type="controls_whileUntil"></block>
@@ -180,13 +184,15 @@
           </shadow>
         </value>
       </block>
-      
-      <block type="logic_operation"></block>
-      <block type="logic_compare"></block>
+    </category>
+    <category name="Math/Text">
       <block type="math_number"></block>
       <block type="math_arithmetic"></block>
+      <block type="math_round"></block>
       <block type="text"></block>
       <block type="text_print"></block>
+    </category>
+    <category name="Array">
       <block type="array_swap"></block>
       <block type="array_length"></block>
       <block type="array_get"></block>
