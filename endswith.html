@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="google" value="notranslate">
+  <title data-bind="text: title"></title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="blockly/blockly_compressed.js"></script>
+  <script src="blockly/blocks_compressed.js"></script>
+  <script src="blockly/javascript_compressed.js"></script>
+  <script src="blockly/msg/js/en.js"></script>
+  <script src="knockout-3.4.0.js"></script>
+  <script src="JS-Interpreter/acorn_interpreter.js"></script>
+  <script src="endswith-blocks.js"></script>
+  <script src="mersenne-twister.js"></script>
+  <script src="download.js"></script>
+  <script src="array.js"></script>
+  <script src="endswith.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 140%;
+    }
+    .table {
+      height: 100%;
+      width: 100%;
+    }
+    #blocklyArea {
+      height: 99%;
+    }
+    .arraytd {
+      border: 1px solid black;
+      padding: 5px;
+      width: 20px;
+    }
+    .controls {
+      margin-top: 5px;
+      padding-top: 5px;
+      padding-left: 5px;
+    }
+  </style>
+  
+</head>
+<body>
+  <table class="table">
+    <tr>
+      <td>
+        <a href="index.html"><h1 data-bind="text: title"></h1></a>
+        <div class="controls">
+          Representation type: 
+          <input type="radio" value="endchar" data-bind="checked: setProblem" >end character representation</input>
+          <input type="radio" value="length" data-bind="checked: setProblem" >length counter representation</input>
+        </div>
+        <div class="controls">
+          Problem instance:
+          <input data-bind="value: seed" size="4"></input>
+          <input type="button" data-bind="click: newProblem" value="New"></input>
+          <input type="button" data-bind="click: reset" value="Reset"></input>
+          Length:
+          <input data-bind="value: n" size="4"></input>
+        </div>
+      </td>
+      <td>
+        <div class="controls">
+          Browser memory: Load: <select data-bind="options: algorithms, value: algorithm, event:{ change: onChangeAlgorithm}"></select>
+          <input id="save" type="button"   value="Save"   data-bind="click: saveBrowser"></input> 
+          <input id="delete" type="button" value="Delete" data-bind="click: deleteBrowser"></input>
+          
+          From Disk: 
+          <input id="upload" type="button" value="Upload" data-bind="click: upload"></input>
+          <input id="fileInput" type="file"/>
+          <input id="download" type="button" value="Download" data-bind="click: download"></input>
+          
+        </div>
+        <div class="controls">
+          Algorithm: 
+          <input id="clear" type="button"  value="Clear"  data-bind="click: clear"></input> 
+          <input id="play" type="button"   value="Play"   data-bind="click: play, value: running() ? 'Pause' : 'Run'"></input>
+          <input id="step" type="button"   value="Step"   data-bind="click: step"></input>
+          Speed: <select data-bind="options: speeds, value: speed"></select>
+          <span data-bind="style: {color: status() == 'stopped' ? 'red' : 'green'}, text: status"></span>
+          <span>Steps: <span data-bind="text: steps"></span></span>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td style="width:40%; padding:5px">
+        <div style="overflow-y: scroll; height:100%;">
+          <h3>Task</h3>
+          <div data-bind="text: problem"></div>
+          
+          <h3>Text</h3>
+
+          <table class="arraytd">
+            <tbody>
+            <tr>
+              <td class="arraytd">Variable</td>
+              <!-- ko if: endchar() == false -->
+                <td class="arraytd">len</td>
+              <!-- /ko -->
+              <!-- ko foreach: array() -->
+                <td class="arraytd" data-bind="text: $index"/></td>
+              <!-- /ko -->
+            </tr>
+            <tr>
+              <td class="arraytd" >s</td>
+              <!-- ko if: endchar() == false -->
+                <td class="arraytd" data-bind="text: array().length"/></td>
+              <!-- /ko -->
+              <!-- ko foreach: array() -->
+                <td class="arraytd" data-bind="text: $data"/></td>
+              <!-- /ko -->
+            </tr>
+            <tr>
+              <td class="arraytd">e</td>
+              <!-- ko if: endchar() == false -->
+                <td class="arraytd" data-bind="text: to_find().length"/></td>
+              <!-- /ko -->
+              <!-- ko foreach: to_find() -->
+                <td class="arraytd" data-bind="text: $data"/></td>
+              <!-- /ko -->
+            </tr>
+          </tbody>
+          </table>
+          
+          
+          <h3>Variables</h3>
+          <table>
+            <tbody data-bind="foreach: variables">
+            <tr>
+              <td class="arraytd"><span data-bind="text: name"></span></td> 
+              <td class="arraytd"><span data-bind="text: val"></span></td>
+            </tr>
+            </tbody>
+          </table>
+          <div data-bind="if: variables().length==0">
+            None
+          </div>
+          'endswith' should be <span data-bind="text: shouldbe" ></span>
+        
+          <h3>Succeeded</h3>
+          <div data-bind="text: succeeded"></div>
+        
+      </div>
+      </td>
+      <td id="blocklyArea" colspan="2">
+      </td>
+    </tr>
+  </table>
+
+  <div id="blocklyDiv" style="position: absolute"></div>
+
+  <xml id="toolbox" style="display: none">
+    <category name="Conditional">
+      <block type="logic_operation"></block>
+      <block type="logic_compare"></block>
+      <block type="controls_if"></block>
+      <block type="logic_boolean"></block>
+    </category>
+    <category name="Loops">
+      <block type="controls_repeat_ext"></block>
+      <block type="controls_flow_statements"></block>
+      <block type="controls_whileUntil"></block>
+      <block type="controls_for">
+        <value name="FROM">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+        <value name="TO">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+        <value name="BY">
+          <shadow type="math_number">
+            <field name="NUM">1</field>
+          </shadow>
+        </value>
+      </block>
+    </category>
+    <category name="Math/Text">
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+      <block type="math_round"></block>
+      <block type="text"></block>
+      <block type="array_length"></block>
+      <block type="array_length2"></block>
+      <block type="text_get"></block>
+      <block type="text2_get"></block>
+    </category>
+    <category name="Variables" custom="VARIABLE"></category>
+    <category name="Functions" custom="PROCEDURE"></category>
+  </xml>
+  
+  <script>
+  var model = null;
+  var init = function() {
+    model = new FindModel();
+    model.init();
+    ko.applyBindings(model);
+  }
+
+  window.addEventListener('load', init);
+  </script>
+</body>
+</html>
