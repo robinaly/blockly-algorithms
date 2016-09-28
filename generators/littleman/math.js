@@ -70,7 +70,6 @@ Blockly.LittleMan['math_arithmetic'] = function(block) {
     code += '\n' + Blockly.LittleMan.instruction2('LDA', address0);
   }
   
-  //code += '\n' + Blockly.LittleMan.instruction1('// mathematical operation ' + operator);
   code += '\n' + Blockly.LittleMan.instruction2(operator, address1);
   return [code, order];
 };

@@ -356,7 +356,7 @@ self.onChange = function(event) {
 }
 
 self.localInit = function() {
-  console.log("hello");
+
 }
 
 /**

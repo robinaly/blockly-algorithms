@@ -140,7 +140,6 @@ Blockly.LittleMan['math_plusminus'] = function(block) {
     code += '\n' + Blockly.LittleMan.instruction2('LDA', address0);
   }
   
-  code += '\n' + Blockly.LittleMan.instruction1('// mathematical operation ' + operator) +
-          '\n' + Blockly.LittleMan.instruction2(operator, address1);
+  code += '\n' + Blockly.LittleMan.instruction2(operator, address1);
   return [code, order];
 };

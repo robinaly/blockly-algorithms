@@ -36,12 +36,14 @@ Blockly.LittleMan['controls_if'] = function(block) {
   // generate end labels
   var endlabels = [];
   for (n = 0; n <= block.elseifCount_; n++) {
-    endlabels.push(Blockly.LittleMan.getLabel('if'));
+    endlabels.push(Blockly.LittleMan.getLabel('ifend'));
     if (n>0) {
       code += '\n' + Blockly.LittleMan.instruction3(endlabels[n-1], 'LDA', 'one');
     }
     //code += '\n' + Blockly.LittleMan.instruction1('// if condition ' + n);
-    code += Blockly.LittleMan.valueToCode(block, 'IF' + n, Blockly.LittleMan.ORDER_NONE) || 'false';
+    var val = Blockly.LittleMan.valueToCode(block, 'IF' + n, Blockly.LittleMan.ORDER_NONE);
+    console.log(val);
+    code += Blockly.LittleMan.valueToCode(block, 'IF' + n, Blockly.LittleMan.ORDER_NONE);
     code += '\n' + Blockly.LittleMan.instruction2('BRP', endlabels[n]);
     //code += '\n' + Blockly.LittleMan.instruction1('// branch if ' + n);
     code += Blockly.LittleMan.statementToCode(block, 'DO' + n);
@@ -97,11 +99,19 @@ Blockly.LittleMan['logic_compare'] = function(block) {
   }
   
   if (operator == "==") {
+    var lbl1 = Blockly.LittleMan.getLabel('ctrue');
+    var lbl2 = Blockly.LittleMan.getLabel('endcond');
+    var tmp = Blockly.LittleMan.makeTemp('0');
     code += '\n' + Blockly.LittleMan.instruction2('LDA', address0);
-    code += '\n' + Blockly.LittleMan.instruction2('SUB', address1);
+    code += '\n' + Blockly.LittleMan.instruction2('SUB', address1);    
+    code += '\n' + Blockly.LittleMan.instruction2('BRZ', lbl1);
+    code += '\n' + Blockly.LittleMan.instruction2('LDA', 'one');
+    code += '\n' + Blockly.LittleMan.instruction2('BRA', lbl2);
+    code += '\n' + Blockly.LittleMan.instruction3(lbl1, 'LDA', '`zero`');
+    code += '\n' + Blockly.LittleMan.instruction3(lbl2, 'STA', tmp);
   } else if (operator == "!=") {
-    var lbl1 = Blockly.LittleMan.getLabel('ifequal');
-    var lbl2 = Blockly.LittleMan.getLabel('ifunequal');
+    var lbl1 = Blockly.LittleMan.getLabel('ctrue');
+    var lbl2 = Blockly.LittleMan.getLabel('econd');
     var tmp = Blockly.LittleMan.makeTemp('0');
     code += '\n' + Blockly.LittleMan.instruction2('LDA', address0);
     code += '\n' + Blockly.LittleMan.instruction2('SUB', address1);    
@@ -111,7 +121,54 @@ Blockly.LittleMan['logic_compare'] = function(block) {
     code += '\n' + Blockly.LittleMan.instruction3(lbl1, 'LDA', 'one');
 
     code += '\n' + Blockly.LittleMan.instruction3(lbl2, 'STA', tmp);
-  }
+  } else if (operator == ">=") {
+    var lbl1 = Blockly.LittleMan.getLabel('ctrue');
+    var lbl2 = Blockly.LittleMan.getLabel('econd');
+    var tmp = Blockly.LittleMan.makeTemp('0');
+    code += '\n' + Blockly.LittleMan.instruction2('LDA', address0);
+    code += '\n' + Blockly.LittleMan.instruction2('SUB', address1);    
+    code += '\n' + Blockly.LittleMan.instruction2('BRP', lbl1);
+    code += '\n' + Blockly.LittleMan.instruction2('LDA', 'zero');
+    code += '\n' + Blockly.LittleMan.instruction2('BRA', lbl2);
+    code += '\n' + Blockly.LittleMan.instruction3(lbl1, 'LDA', 'one');
+    code += '\n' + Blockly.LittleMan.instruction3(lbl2, 'STA', tmp);
+  } else if (operator == ">") {
+    var lbl1 = Blockly.LittleMan.getLabel('ctrue');
+    var lbl2 = Blockly.LittleMan.getLabel('econd');
+    var tmp = Blockly.LittleMan.makeTemp('0');
+    code += '\n' + Blockly.LittleMan.instruction2('LDA', address0);
+    code += '\n' + Blockly.LittleMan.instruction2('SUB', address1);    
+    code += '\n' + Blockly.LittleMan.instruction2('SUB', 'one');    
+    code += '\n' + Blockly.LittleMan.instruction2('BRP', lbl1);
+    code += '\n' + Blockly.LittleMan.instruction2('LDA', 'zero');
+    code += '\n' + Blockly.LittleMan.instruction2('BRA', lbl2);
+    code += '\n' + Blockly.LittleMan.instruction3(lbl1, 'LDA', 'one');
+    code += '\n' + Blockly.LittleMan.instruction3(lbl2, 'STA', tmp);
+  } else if (operator == "<=") {
+    var lbl1 = Blockly.LittleMan.getLabel('ctrue');
+    var lbl2 = Blockly.LittleMan.getLabel('econd');
+    var tmp = Blockly.LittleMan.makeTemp('0');
+    code += '\n' + Blockly.LittleMan.instruction2('LDA', address1);
+    code += '\n' + Blockly.LittleMan.instruction2('SUB', address0);    
+    code += '\n' + Blockly.LittleMan.instruction2('BRP', lbl1);
+    code += '\n' + Blockly.LittleMan.instruction2('LDA', 'zero');
+    code += '\n' + Blockly.LittleMan.instruction2('BRA', lbl2);
+    code += '\n' + Blockly.LittleMan.instruction3(lbl1, 'LDA', 'one');
+    code += '\n' + Blockly.LittleMan.instruction3(lbl2, 'STA', tmp);
+  } else if (operator == "<") {
+    var lbl1 = Blockly.LittleMan.getLabel('ctrue');
+    var lbl2 = Blockly.LittleMan.getLabel('econd');
+    var tmp = Blockly.LittleMan.makeTemp('0');
+    code += '\n' + Blockly.LittleMan.instruction2('LDA', address1);
+    code += '\n' + Blockly.LittleMan.instruction2('SUB', address0);    
+    code += '\n' + Blockly.LittleMan.instruction2('SUB', 'one');    
+    code += '\n' + Blockly.LittleMan.instruction2('BRP', lbl1);
+    code += '\n' + Blockly.LittleMan.instruction2('LDA', 'zero');
+    code += '\n' + Blockly.LittleMan.instruction2('BRA', lbl2);
+    code += '\n' + Blockly.LittleMan.instruction3(lbl1, 'LDA', 'one');
+    code += '\n' + Blockly.LittleMan.instruction3(lbl2, 'STA', tmp);
+  } 
+  
   return [code, order];
 };
 
