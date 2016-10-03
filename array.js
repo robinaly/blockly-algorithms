@@ -240,6 +240,7 @@ self.compile = function() {
   self.succeeded(false);
   self.steps(0);
   var code = Blockly.JavaScript.workspaceToCode(self.workspace);
+  code += 'step("");\n';
   code += '\n\n';
   code += "function step(id) {\n";
   code += "  var data = {};\n";
